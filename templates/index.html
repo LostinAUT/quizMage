@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_flashed_messages %}
+
+{% block head %}
+    {{ render_nav_item('login_bp.index', 'Home') }}
+{% endblock %}
+
+{% block content %}
+    <h1>Login</h1>
+    {{ render_form(form) }}
+    <p>还没有账号？<a href="{{ url_for('login_bp.register') }}">点击注册</a></p>
+{% endblock %}

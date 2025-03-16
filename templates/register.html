@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/nav.html' import render_nav_item %}
+
+{% block content %}
+    <h1>Register</h1>
+    {{ render_form(form) }}
+
+    <p>已有账号？<a href="{{ url_for('login_bp.index') }}">返回登录</a></p>
+{% endblock %}
