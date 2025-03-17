@@ -1,5 +1,5 @@
 # views/student_views.py
-from flask import Blueprint, render_template, flash, redirect, url_for
+from flask import Blueprint, render_template, flash, redirect, url_for,request
 from forms import AccountForm, SelectForm, DeleteForm, ScoreForm
 from db_sqlite import get_sql, update_data, insert_data, delete_data_by_id
 from datetime import datetime
@@ -14,35 +14,77 @@ def profile(sno):
 #查询个人信息，修改密码
 @student_bp.route('/<int:sno>/account', methods=['GET', 'POST'])
 def student_account(sno):
-    form = AccountForm()
-
-
+    # 查询学生个人信息
     result, _ = get_sql("SELECT sno, name, password, gender, college, major FROM student WHERE sno='%s'" % sno)
     
     if not result:
         flash("学生信息不存在", "danger")
         return redirect(url_for("student_bp.profile", sno=sno))
 
-    sno, name, password, gender, college, major = result[0]  # 按照顺序解析数据
+    # 解析数据
+    student_info = {
+        'sno': result[0][0],
+        'name': result[0][1],
+        'password': result[0][2],  # 用于验证原密码
+        'gender': result[0][3],
+        'college': result[0][4],
+        'major': result[0][5]
+    }
 
-    if form.validate_on_submit():
-        # 检查原密码是否正确
-        if form.secret.data == password:
-            data = dict(
-                sno=sno,
-                name=name,
-                gender=gender,
-                college=college,
-                major=major,
-                password=form.password.data  # 更新新密码
-            )
-            update_data(data, "student")
-            flash("修改成功！", "success")
-        else:
-            flash("原密码错误", "warning")
+    if request.method == "POST":
+        action = request.form.get("action")
 
-    return render_template('student_account.html', sno=sno, name=name, gender=gender, college=college, major=major, form=form)
+        if action == "update_info":
+            # 获取用户提交的新信息
+            new_name = request.form.get("name")
+            new_gender = request.form.get("gender")
+            new_college = request.form.get("college")
+            new_major = request.form.get("major")
 
+            if new_name and new_gender and new_college and new_major:
+                data = {
+                    "sno": sno,
+                    "name": new_name,
+                    "gender": new_gender,
+                    "college": new_college,
+                    "major": new_major,
+                    "password": student_info["password"]  # 保持原密码不变
+                }
+                update_data(data, "student")  # 更新数据库
+                flash("个人信息修改成功！", "success")
+            else:
+                flash("请填写完整信息", "warning")
+
+        elif action == "update_password":
+            # 获取用户输入的密码
+            secret = request.form.get("secret")  # 原密码
+            new_password = request.form.get("password")  # 新密码
+
+            if secret == student_info["password"]:  # 验证原密码
+                data = {
+                    "sno": sno,
+                    "name": student_info["name"],  # 保持原姓名
+                    "gender": student_info["gender"],  # 保持原性别
+                    "college": student_info["college"],  # 保持原学院
+                    "major": student_info["major"],  # 保持原专业
+                    "password": new_password  # 更新密码
+                }
+                update_data(data, "student")  # 更新数据库
+                flash("密码修改成功！", "success")
+            else:
+                flash("原密码错误", "warning")
+
+        # **更新数据库后，重新查询最新的学生信息**
+        result, _ = get_sql("SELECT sno, name, password, gender, college, major FROM student WHERE sno='%s'" % sno)
+        student_info.update({
+            'name': result[0][1],
+            'password': result[0][2],
+            'gender': result[0][3],
+            'college': result[0][4],
+            'major': result[0][5]
+        })
+
+    return render_template('student_account.html', **student_info)
 
 #选课
 @student_bp.route('/<int:sno>/course_select', methods=['GET', 'POST'])
@@ -89,7 +131,6 @@ def student_course_select(sno):
     return render_template('student_course_select.html', sno=sno, messages=messages, titles=titles, form=form)
 
 #退课
-@student_bp.route('/<int:sno>/course_delete', methods=['GET', 'POST'])
 @student_bp.route('/<int:sno>/course_delete', methods=['GET', 'POST'])
 def student_course_delete(sno):
     form = DeleteForm()

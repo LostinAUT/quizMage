@@ -61,13 +61,16 @@ def update_data(data, tablename):
     conn = open_db()
     values = []
     cursor = conn.cursor()
-    idName1 = list(data)[0]
-    idName2 = list(data)[1]
-    for v in list(data)[2:]:
+    
+    idName = list(data)[0]  # 只取 `tno`
+    
+    for v in list(data)[1:]:  # 从第 2 个字段开始
         values.append("%s='%s'" % (v, data[v]))
-    sql = "update %s set %s where %s='%s' and %s='%s'" % (
-    tablename, ",".join(values), idName1, data[idName1], idName2, data[idName2])
-    # print (sql)
+    
+    sql = "UPDATE %s SET %s WHERE %s='%s'" % (
+        tablename, ",".join(values), idName, data[idName]
+    )
+    
     cursor.execute(sql)
     conn.commit()
     close_db(conn)

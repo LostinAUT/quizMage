@@ -21,9 +21,23 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('注册')
 
 class AccountForm(FlaskForm):
+    # 修改密码的表单
     secret = PasswordField(u'旧密码', validators=[DataRequired(), Length(0, 10)], render_kw={'placeholder': '旧密码'})
     password = PasswordField(u'新密码', validators=[DataRequired(), Length(0, 10)], render_kw={'placeholder': '新密码'})
-    submit = SubmitField(u'修改密码')
+    #submit_password = SubmitField(u'修改密码')  # 提交修改密码按钮
+
+# 用于修改密码的表单
+class ChangePasswordForm(FlaskForm):
+    secret = PasswordField(u'旧密码', validators=[DataRequired(), Length(0, 10)], render_kw={'placeholder': '旧密码'})
+    password = PasswordField(u'新密码', validators=[DataRequired(), Length(0, 10)], render_kw={'placeholder': '新密码'})
+    submit_password = SubmitField(u'修改密码')
+
+# 用于修改个人信息的表单
+class ChangeInfoForm(FlaskForm):
+    name = StringField(u'姓名', validators=[DataRequired()], render_kw={'placeholder': '姓名'})
+    gender = SelectField(u'性别', choices=[('男', '男'), ('女', '女')], validators=[DataRequired()])
+    college = StringField(u'学院', validators=[DataRequired()], render_kw={'placeholder': '学院'})
+    submit_info = SubmitField(u'修改个人信息')
 
 class SelectForm(FlaskForm):
     title = StringField(u'课程号', render_kw={'placeholder': '课程号'})

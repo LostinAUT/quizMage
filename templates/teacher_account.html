@@ -6,13 +6,54 @@
     <p>工号：{{ tno }}</p>
     <p>姓名：{{ name }}</p>
     <p>性别：{{ gender }}</p>
-    <p>学院：{{ college }}</p>  {# 新增学院字段 #}
+    <p>学院：{{ college }}</p>  
     <br>
     <div>
-        <h5>修改密码：</h5>
-        <br>
-        {{ render_form(form, form_type="inline") }}
-        <br>
+
+        
+    <form method="POST" action="{{ url_for('teacher_bp.teacher_account', tno=tno) }}">
+        <!-- 姓名、性别、学院修改 -->
+        <h5>修改个人信息：</h5>
+        <div>
+            <label for="name">姓名：</label>
+            <input type="text" name="name" value="{{ name }}" required>
+        </div>
+        <div>
+            <label for="gender">性别：</label>
+            <select name="gender" required>
+                <option value="男" {% if gender == '男' %}selected{% endif %}>男</option>
+                <option value="女" {% if gender == '女' %}selected{% endif %}>女</option>
+            </select>
+        </div>
+        <div>
+            <label for="college">学院：</label>
+            <input type="text" name="college" value="{{ college }}" required>
+        </div>
+
+        <!-- 提交修改个人信息 -->
+        <button type="submit" name="action" value="update_info">提交修改</button>
+    </form>
+        <br><br>
+        
+    <form method="POST" action="{{ url_for('teacher_bp.teacher_account', tno=tno) }}">
+        <!-- 修改密码部分 -->
+        <div>
+            <h5>修改密码：</h5>
+            <div>
+                <label >原密码：</label>
+                <input type="password" name="secret" placeholder="请输入原密码">   
+            </div>
+       
+            <div>
+                <label >新密码：</label>
+                <input type="password" name="password" placeholder="请输入新密码">   
+            </div>
+     
+            <button type="submit" name="action" value="update_password">修改密码</button>       
+        </div>
+    </form>
+     
+        
     </div>
 
 {% endblock %}
