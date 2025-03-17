@@ -18,7 +18,7 @@ def index():
                 flash(u'用户名不存在', 'warning')
                 return render_template('index.html', form=form)
 
-            if result[0][5] == form.password.data:
+            if result[0][2] == form.password.data:
                 return redirect(url_for('student_bp.profile', sno=form.username.data))
             else:
                 flash(u'密码错误', 'warning')

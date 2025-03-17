@@ -9,13 +9,26 @@ teacher_bp = Blueprint('teacher_bp', __name__)
 def profile(tno):
     return render_template('teacher.html', tno=tno)
 
+#老师个人信息
 @teacher_bp.route('/<int:tno>/account', methods=['GET', 'POST'])
 def teacher_account(tno):
     form = AccountForm()
 
+    # 查询教师个人信息
+    result, _ = get_sql("select * from teacher where tno='%s'" % tno)
+    if not result:
+        flash(u'教师信息不存在', 'danger')
+        return redirect(url_for('some_error_page'))  # 可修改为适当的页面
+
+    teacher_info = {
+        'tno': result[0][0],
+        'name': result[0][1],
+        'gender': result[0][3],
+        'college': result[0][4]
+    }
+
     if form.is_submitted():
-        result, _ = get_sql("select * from teacher where tno='%s'" % tno)
-        if form.secret.data == result[0][2]:
+        if form.secret.data == result[0][2]:  # 确保原密码正确
             data = dict(
                 tno=tno,
                 name=result[0][1],
@@ -26,64 +39,79 @@ def teacher_account(tno):
         else:
             flash(u'原密码错误', 'warning')
 
-    return render_template('teacher_account.html', tno=tno, form=form)
+    return render_template('teacher_account.html', **teacher_info, form=form)
 
+
+#老师课程信息
 @teacher_bp.route('/<int:tno>/course', methods=['GET'])
 def teacher_course(tno):
     result_course, _ = get_sql("SELECT * FROM course WHERE tno='%s'" % tno)
 
     messages = []
-    for i in result_course:
+    for course in result_course:
         message = []
-        result_score, _ = get_sql("SELECT sno FROM score WHERE cno='%s'" % i[0])
-        if not result_score:
-            continue
+        result_student_course, _ = get_sql("SELECT sno FROM student_course WHERE cno='%s'" % course[0])  # 课程号匹配学生
+
+        if not result_student_course:
+            continue  # 如果课程没人选，跳过
         else:
-            for j in result_score:
-                result_student, _ = get_sql("select * from student where sno='%s'" % j[0])
-                row = {'cno': i[0], 'cname': i[1], 'sno': result_student[0][0], 'name': result_student[0][1],
-                       'gender': result_student[0][2], 'major': result_student[0][4], }
+            for student in result_student_course:
+                result_student, _ = get_sql("SELECT * FROM student WHERE sno='%s'" % student[0])
+                row = {
+                    'cno': course[0],          # 课程号
+                    'cname': course[1],        # 课程名
+                    'sno': result_student[0][0],  # 学号
+                    'name': result_student[0][1], # 学生姓名
+                    'gender': result_student[0][3],  # 性别（索引 3）
+                    'college': result_student[0][4], # 学院（索引 4）
+                    'major': result_student[0][5]   # 专业（索引 5）
+                }
                 message.append(row)
         messages.append(message)
 
-    titles = [('sno', '学员号'), ('name', '学员姓名'), ('gender', '性别'), ('major', '专业')]
+    titles = [
+        ('sno', '学员号'),
+        ('name', '学员姓名'),
+        ('gender', '性别'),
+        ('college', '学院'),  
+        ('major', '专业')
+    ]
+
     return render_template('teacher_course.html', tno=tno, messages=messages, titles=titles)
 
-
+#班级正确率查询
 @teacher_bp.route('/<int:tno>/score', methods=['GET', 'POST'])
 def teacher_score(tno):
-    form = ScoreForm()
-
+    # 查询该教师所教授的课程
     result_course, _ = get_sql("SELECT * FROM course WHERE tno='%s'" % tno)
 
     messages = []
-    for i in result_course:
+    
+    for course in result_course:
+        cno = course[0]  # 课程号
+        cname = course[1]  # 课程名
+
+        # 统计每个章节的答题正确率
+        result_chapters, _ = get_sql(f"""
+            SELECT q.qname, SUM(sa.correctcnt) AS total_correct, SUM(sa.allcnt) AS total_attempts
+            FROM student_answer sa
+            JOIN question q ON sa.qid = q.qid
+            WHERE sa.cno = '{cno}'
+            GROUP BY q.qname
+        """)
+
         message = []
-        result_score, _ = get_sql("SELECT * FROM score WHERE cno='%s'" % i[0])
-        for j in result_score:
-            result_student, _ = get_sql("select name from student where sno='%s'" % j[0])
-            row = {'cname': i[1], 'cno': i[0], 'sno': j[0], 'name': result_student[0][0], 'score': j[2]}
+        for chapter in result_chapters:
+            qname = chapter[0]  # 章节名
+            total_correct = chapter[1] or 0
+            total_attempts = chapter[2] or 1  # 避免除零错误
+            accuracy = round((total_correct / total_attempts) * 100, 2)  # 计算正确率，保留两位小数
+
+            row = {'cname': cname, 'cno': cno, 'qname': qname, 'accuracy': f"{accuracy}%"}
             message.append(row)
+
         messages.append(message)
 
-    titles = [('sno', '学员号'), ('name', '学员姓名'), ('score', '成绩')]
+    titles = [('qname', '章节名称'), ('accuracy', '正确率')]
 
-    if form.validate_on_submit():
-        if not (form.title_cno.data and form.title_sno.data and form.title_score.data):
-            flash(u'输入不完整', 'warning')
-        else:
-            result, _ = get_sql(
-                "select * from score where cno='%s' and sno='%s'" % (form.title_cno.data, form.title_sno.data))
-            if result:
-                data = dict(
-                    sno=form.title_sno.data,
-                    cno=form.title_cno.data,
-                    score=form.title_score.data
-                )
-                update_data(data, "score")
-                flash(u'录入成功！', 'success')
-                return redirect(url_for('teacher_score', tno=tno, messages=messages, titles=titles, form=form))
-            else:
-                flash(u'该学生未选课', 'warning')
-
-    return render_template('teacher_score.html', tno=tno, messages=messages, titles=titles, form=form)
+    return render_template('teacher_score.html', tno=tno, messages=messages, titles=titles)

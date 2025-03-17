@@ -3,10 +3,15 @@
 
 {% block content %}
     {% for message in messages %}
-        <h3>{{ message[0].cname }} 课程号:{{ message[0].cno }}</h3>
-        <br>
-        {{ render_table(message, titles=titles, primary_key='cno') }}
-        <br>
-        <br>
+        {% if message %}  {# 确保 message 不为空 #}
+            <h3>{{ message[0].cname }} 课程号:{{ message[0].cno }}</h3>
+            <br>
+            {{ render_table(message, titles=titles, primary_key='sno') }}  {# primary_key 使用 sno（学号） #}
+            <br>
+            <br>
+        {% else %}
+            <h3>该课程暂无学生选课</h3>
+            <br>
+        {% endif %}
     {% endfor %}
 {% endblock %}

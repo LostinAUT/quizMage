@@ -2,5 +2,17 @@
 {% from 'bootstrap/form.html' import render_form %}
 
 {% block content %}
-    {{ render_form(form) }}
+    <br>
+    <p>工号：{{ tno }}</p>
+    <p>姓名：{{ name }}</p>
+    <p>性别：{{ gender }}</p>
+    <p>学院：{{ college }}</p>  {# 新增学院字段 #}
+    <br>
+    <div>
+        <h5>修改密码：</h5>
+        <br>
+        {{ render_form(form, form_type="inline") }}
+        <br>
+    </div>
+
 {% endblock %}

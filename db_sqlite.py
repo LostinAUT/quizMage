@@ -4,7 +4,7 @@ import sqlite3
 
 # 建立数据库连接
 def open_db():
-    database = "./data.db"
+    database = "./database.db"
     conn = sqlite3.connect(database)
     # conn.row_factory = sqlite3.Row
     return conn
