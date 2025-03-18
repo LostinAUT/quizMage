@@ -4,12 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Bootstrap-Flask Demo Application</title>
+    <title>quizMage</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     {{ bootstrap.load_css() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    {# 导航栏 #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-transparent mb-4">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

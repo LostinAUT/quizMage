@@ -1,9 +1,41 @@
 {% extends 'student.html' %}
 {% from 'bootstrap/form.html' import render_form %}
-{% from 'bootstrap/table.html' import render_table %}
 
 {% block content %}
-    {{ render_form(form, form_type="inline") }}
-    <br>
-    {{ render_table(messages, titles=titles, primary_key='cno') }}
+<div class="container">
+    <div class="row">
+        <!-- 课程列表表格 -->
+
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>课程号</th>
+                            <th>课程名</th>
+                            <th>任课教师</th>
+                            <th>已选课人数</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in messages %}
+                        <tr>
+                            <td>{{ row['cno'] }}</td>
+                            <td>{{ row['name'] }}</td>
+                            <td>{{ row['tname'] }}</td>
+                            <td>{{ row['count'] }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('student_bp.student_course_select', sno=sno) }}">
+                                    <input type="hidden" name="title" value="{{ row['cno'] }}">
+                                    <button type="submit" class="btn btn-primary   btn-sm">选课</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        
+    </div>
+</div>
 {% endblock %}

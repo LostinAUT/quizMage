@@ -2,53 +2,66 @@
 {% from 'bootstrap/form.html' import render_form %}
 
 {% block content %}
-    <br>
-    <p>姓名：{{ name }}</p>
-    <p>性别：{{ gender }}</p>
-    <p>学院：{{ college }}</p>
-    <p>专业：{{ major }}</p>
-    <br>
+    <div class="container my-5">
 
-    <!-- 修改个人信息 -->
-    <h5>修改个人信息：</h5>
-    <form method="POST" action="{{ url_for('student_bp.student_account', sno=sno) }}">
-        <div>
-            <label for="name">姓名：</label>
-            <input type="text" name="name" value="{{ name }}" required>
-        </div>
-        <div>
-            <label for="gender">性别：</label>
-            <select name="gender" required>
-                <option value="男" {% if gender == '男' %}selected{% endif %}>男</option>
-                <option value="女" {% if gender == '女' %}selected{% endif %}>女</option>
-            </select>
-        </div>
-        <div>
-            <label for="college">学院：</label>
-            <input type="text" name="college" value="{{ college }}" required>
-        </div>
-        <div>
-            <label for="major">专业：</label>
-            <input type="text" name="major" value="{{ major }}" required>
-        </div>
+        <!-- 显示个人信息 -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h5 class="card-title text-center"> 个人信息</h5>
+                    <p><strong>姓名：</strong> {{ name }}</p>
+                    <p><strong>性别：</strong> {{ gender }}</p>
+                    <p><strong>学院：</strong> {{ college }}</p>
+                    <p><strong>专业：</strong> {{ major }}</p>
+                </div>
+            </div>
 
-        <button type="submit" name="action" value="update_info">提交个人信息</button>
-    </form>
+            <!-- 修改个人信息 -->
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h5 class="card-title text-center" >修改个人信息</h5>
+                    <form method="POST" action="{{ url_for('student_bp.student_account', sno=sno) }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">姓名</label>
+                            <input type="text" name="name" class="form-control" value="{{ name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gender" class="form-label">性别</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="男" {% if gender == '男' %}selected{% endif %}>男</option>
+                                <option value="女" {% if gender == '女' %}selected{% endif %}>女</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="college" class="form-label">学院</label>
+                            <input type="text" name="college" class="form-control" value="{{ college }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="major" class="form-label">专业</label>
+                            <input type="text" name="major" class="form-control" value="{{ major }}" required>
+                        </div>
+                        <button type="submit" name="action" value="update_info" class="btn btn-primary w-100">提交个人信息</button>
+                    </form>
+                </div>
+            </div>
 
-    <br><br>
-
-    <!-- 修改密码 -->
-    <h5>修改密码：</h5>
-    <form method="POST" action="{{ url_for('student_bp.student_account', sno=sno) }}">
-        <div>
-            <label>原密码：</label>
-            <input type="password" name="secret" placeholder="请输入原密码" required>   
+            <!-- 修改密码 -->
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h5 class="card-title text-center" >修改密码</h5>
+                    <form method="POST" action="{{ url_for('student_bp.student_account', sno=sno) }}">
+                        <div class="mb-3">
+                            <label for="secret" class="form-label">原密码</label>
+                            <input type="password" name="secret" class="form-control" placeholder="请输入原密码" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">新密码</label>
+                            <input type="password" name="password" class="form-control" placeholder="请输入新密码" required>
+                        </div>
+                        <button type="submit" name="action" value="update_password" class="btn btn-danger w-100">修改密码</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div>
-            <label>新密码：</label>
-            <input type="password" name="password" placeholder="请输入新密码" required>   
-        </div>
-        <button type="submit" name="action" value="update_password">修改密码</button>       
-    </form>
-
+    </div>
 {% endblock %}

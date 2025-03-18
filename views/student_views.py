@@ -8,7 +8,25 @@ student_bp = Blueprint('student_bp', __name__)
 
 @student_bp.route('/<int:sno>', methods=['GET'])
 def profile(sno):
-    return render_template('student.html', sno=sno)
+    # 获取学生个人信息
+    result_info, _ = get_sql("SELECT name, gender, college, major FROM student WHERE sno='%s'" % sno)
+    if result_info:
+        name, gender, college, major = result_info[0]
+    
+    # 获取学生选课信息
+    result_courses, _ = get_sql("""
+        SELECT c.cno, c.cname, t.name AS tname 
+        FROM course c
+        JOIN teacher t ON c.tno = t.tno
+        JOIN student_course sc ON c.cno = sc.cno
+        WHERE sc.sno = '%s'
+    """ % sno)
+    courses = [{'cno': course[0], 'cname': course[1], 'tname': course[2]} for course in result_courses]
+
+
+    # 渲染模板并传递数据
+    return render_template('student.html', sno=sno, name=name, gender=gender, college=college, major=major, 
+                           courses=courses)
 
 
 #查询个人信息，修改密码
@@ -91,16 +109,16 @@ def student_account(sno):
 def student_course_select(sno):
     form = SelectForm()
 
-    # 查询所有课程信息（course表）
+    # 查询所有课程信息
     result_course, _ = get_sql("SELECT * FROM course")
 
     messages = []
     for i in result_course:
-        # 查询任课教师姓名（teacher表）
+        # 查询任课教师姓名
         result_teacher, _ = get_sql("SELECT name FROM teacher WHERE tno='%s'" % i[2])
         tname = result_teacher[0][0] if result_teacher else "未知"
 
-        # 查询该课程已选人数（student_course表）
+        # 查询该课程已选人数
         result_count, _ = get_sql("SELECT COUNT(*) FROM student_course WHERE cno='%s'" % i[0])
         count = result_count[0][0] if result_count else 0
 
@@ -109,21 +127,22 @@ def student_course_select(sno):
 
     titles = [('cno', '课程号'), ('name', '课程名'), ('tname', '任课教师'), ('count', '已选课人数')]
 
-    if form.validate_on_submit():
-        if not form.title.data:
-            flash(u'请填写课程号', 'warning')
+    if request.method == 'POST':
+        course_id = request.form.get("title")  # 获取课程号
+        if not course_id:
+            flash(u'请选择课程', 'warning')
         else:
-            result, _ = get_sql("SELECT * FROM course WHERE cno='%s'" % form.title.data)
+            result, _ = get_sql("SELECT * FROM course WHERE cno='%s'" % course_id)
             if not result:
                 flash(u'课程不存在', 'warning')
             else:
-                result, _ = get_sql("SELECT * FROM student_course WHERE sno='%s' AND cno='%s'" % (sno, form.title.data))
+                result, _ = get_sql("SELECT * FROM student_course WHERE sno='%s' AND cno='%s'" % (sno, course_id))
                 if result:
-                    flash(u'课程选过了', 'warning')
+                    flash(u'你已经选过这门课程了', 'warning')
                 else:
                     data = dict(
                         sno=sno,
-                        cno=form.title.data
+                        cno=course_id
                     )
                     insert_data(data, "student_course")
                     flash('选课成功', 'success')
@@ -152,17 +171,18 @@ def student_course_delete(sno):
 
     titles = [('cno', '已选课程号'), ('cname', '课程名'), ('tname', '任课教师')]
 
-    if form.validate_on_submit():
-        if not form.title.data:
+    if request.method == 'POST':
+        course_id = request.form.get("title")  # 获取课程号
+        if not course_id:
             flash(u'请填写课程号', 'warning')
         else:
-            result, _ = get_sql("SELECT * FROM student_course WHERE cno='%s' AND sno='%s'" % (form.title.data, sno))
+            result, _ = get_sql("SELECT * FROM student_course WHERE cno='%s' AND sno='%s'" % (course_id, sno))
             if not result:
                 flash(u'你未选该课程', 'warning')
             else:
-                delete_data_by_id('sno', 'cno', sno, form.title.data, "student_course")
+                delete_data_by_id('sno', 'cno', sno, course_id, "student_course")
                 flash('退课成功', 'success')
-                return redirect(url_for('student_course_delete', sno=sno))  # 重新加载页面，刷新数据
+                return redirect(url_for('student_bp.student_course_delete', sno=sno))  # 重新加载页面，刷新数据
 
     return render_template('student_course_delete.html', sno=sno, messages=messages, titles=titles, form=form)
 

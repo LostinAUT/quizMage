@@ -4,8 +4,64 @@
 {% block head %}
     {{ render_nav_item('teacher_bp.profile', tno, tno=tno) }}
     {{ render_nav_item('teacher_bp.teacher_account', '个人信息', tno=tno) }}
-    {{ render_nav_item('teacher_bp.teacher_course', '浏览课程', tno=tno) }}
+    {{ render_nav_item('teacher_bp.teacher_course', '个人课程', tno=tno) }}
     {{ render_nav_item('teacher_bp.teacher_score', '班级正确率查询', tno=tno) }}
     {{ render_nav_item('login_bp.index', '退出登录') }}
 {% endblock %}
 
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- 个人信息卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>个人信息</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>姓名：</strong>{{ name }}</p>
+                    <p><strong>工号：</strong>{{ tno }}</p>
+                    <p><strong>性别：</strong>{{ gender }}</p>
+                    <p><strong>学院：</strong>{{ college }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人课程卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>个人课程</h4>
+                </div>
+                <div class="card-body">
+                    {% if courses %}
+                        {% for course in courses %}
+                            <p><strong>{{ course.cname }}</strong> ({{ course.cno }})</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>您尚未教授任何课程。</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 班级正确率查询卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>班级正确率查询</h4>
+                </div>
+                <div class="card-body">
+                    {% if scores %}
+                        {% for score in scores %}
+                            <p><strong>{{ score.qname }}</strong> - 正确率：{{ score.accuracy }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>暂无班级正确率数据。</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

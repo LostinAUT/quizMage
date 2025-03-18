@@ -8,9 +8,9 @@ from wtforms.validators import DataRequired, Length, EqualTo
 
 
 class HelloForm(FlaskForm):
-    username = StringField(u'用户名', validators=[DataRequired(), Length(1, 20)])
-    password = PasswordField(u'密码', validators=[Length(0, 10)])
     select = SelectField(u'身份', choices=[('student', 'Student'), ('teacher', 'Teacher')])
+    username = StringField(u'用户名', validators=[DataRequired(), Length(1, 20)])
+    password = PasswordField(u'密码', validators=[Length(0, 20)])
     submit = SubmitField(u'登录')
 
 class RegisterForm(FlaskForm):

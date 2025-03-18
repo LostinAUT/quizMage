@@ -1,11 +1,69 @@
 {% extends 'base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
 {% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_messages %}
 
 {% block head %}
-    {{ render_nav_item('student_bp.profile', sno, sno=sno) }}
+    {{ render_nav_item('student_bp.profile', sno ,sno=sno) }}
     {{ render_nav_item('student_bp.student_account', '个人信息', sno=sno) }}
     {{ render_nav_item('student_bp.student_course_select', '学生选课', sno=sno) }}
     {{ render_nav_item('student_bp.student_course_delete', '学生退课', sno=sno) }}
     {{ render_nav_item('student_bp.student_accuracy', '查看答题正确率', sno=sno) }}
     {{ render_nav_item('login_bp.index', '退出登录') }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- 个人信息卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>个人信息</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>姓名：</strong>{{ name }}</p>
+                    <p><strong>学号：</strong>{{ sno }}</p>
+                    <p><strong>性别：</strong>{{ gender }}</p>
+                    <p><strong>学院：</strong>{{ college }}</p>
+                    <p><strong>专业：</strong>{{ major }}</p>
+                </div>
+            </div>
+        </div>
+<!-- 课程信息卡片 -->
+<div class="col-md-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4>已选课程</h4>
+        </div>
+        <div class="card-body">
+            {% if courses %}
+                {% for course in courses %}
+                    <p><strong>{{ course.cname }}</strong> ({{ course.cno }}) - 任课教师：{{ course.tname }}</p>
+                {% endfor %}
+            {% else %}
+                <p>您尚未选课。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 成绩历史卡片 -->
+<div class="col-md-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4>成绩历史</h4>
+        </div>
+        <div class="card-body">
+            {% if answer_history %}
+                {% for history in answer_history %}
+                    <p><strong>{{ history.exam_name }}</strong> - 得分：{{ history.score }} / {{ history.total_score }}</p>
+                {% endfor %}
+            {% else %}
+                <p>暂无成绩记录。</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
 {% endblock %}

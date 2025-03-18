@@ -7,8 +7,61 @@ teacher_bp = Blueprint('teacher_bp', __name__)
 
 @teacher_bp.route('/<int:tno>', methods=['GET'])
 def profile(tno):
-    return render_template('teacher.html', tno=tno)
+    # 查询教师个人信息
+    result, _ = get_sql("SELECT * FROM teacher WHERE tno='%s'" % tno)
+    if not result:
+        flash(u'教师信息不存在', 'danger')
+        return redirect(url_for('some_error_page'))
 
+    teacher_info = {
+        'tno': result[0][0],
+        'name': result[0][1],
+        'password': result[0][2],
+        'gender': result[0][3],
+        'college': result[0][4]
+    }
+
+    # 查询教师所教授的课程
+    result_course, _ = get_sql("SELECT * FROM course WHERE tno='%s'" % tno)
+    courses = []
+    for course in result_course:
+        courses.append({
+            'cno': course[0],
+            'cname': course[1],
+        })
+
+    # 查询班级正确率数据
+    scores = []
+    for course in result_course:
+        cno = course[0]
+        result_chapters, _ = get_sql(f"""
+            SELECT q.qname, 
+                   SUM(sa.correctcnt) AS total_correct, 
+                   SUM(sa.allcnt) AS total_attempts
+            FROM student_answer sa
+            JOIN question q ON sa.qid = q.qid
+            WHERE sa.cno = '{cno}'
+            GROUP BY q.qname
+        """)
+
+        for chapter in result_chapters:
+            qname = chapter[0]
+            total_correct = chapter[1] or 0
+            total_attempts = chapter[2] or 1
+            accuracy = round((total_correct / total_attempts) * 100, 2)
+            scores.append({
+                'cno': cno,
+                'qname': qname,
+                'accuracy': f"{accuracy}%",
+            })
+
+    return render_template('teacher.html', 
+                           name=teacher_info['name'], 
+                           tno=teacher_info['tno'], 
+                           gender=teacher_info['gender'], 
+                           college=teacher_info['college'],
+                           courses=courses,
+                           scores=scores)
 #老师个人信息
 @teacher_bp.route('/<int:tno>/account', methods=['GET', 'POST'])
 def teacher_account(tno):

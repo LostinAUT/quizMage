@@ -2,58 +2,67 @@
 {% from 'bootstrap/form.html' import render_form %}
 
 {% block content %}
-    <br>
-    <p>工号：{{ tno }}</p>
-    <p>姓名：{{ name }}</p>
-    <p>性别：{{ gender }}</p>
-    <p>学院：{{ college }}</p>  
-    <br>
-    <div>
-
-        
-    <form method="POST" action="{{ url_for('teacher_bp.teacher_account', tno=tno) }}">
-        <!-- 姓名、性别、学院修改 -->
-        <h5>修改个人信息：</h5>
-        <div>
-            <label for="name">姓名：</label>
-            <input type="text" name="name" value="{{ name }}" required>
-        </div>
-        <div>
-            <label for="gender">性别：</label>
-            <select name="gender" required>
-                <option value="男" {% if gender == '男' %}selected{% endif %}>男</option>
-                <option value="女" {% if gender == '女' %}selected{% endif %}>女</option>
-            </select>
-        </div>
-        <div>
-            <label for="college">学院：</label>
-            <input type="text" name="college" value="{{ college }}" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <!-- 个人信息卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-lg p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-center"> 个人信息</h5>
+                    <p><strong>工号：</strong>{{ tno }}</p>
+                    <p><strong>姓名：</strong>{{ name }}</p>
+                    <p><strong>性别：</strong>{{ gender }}</p>
+                    <p><strong>学院：</strong>{{ college }}</p>
+                </div>
+            </div>
         </div>
 
-        <!-- 提交修改个人信息 -->
-        <button type="submit" name="action" value="update_info">提交修改</button>
-    </form>
-        <br><br>
-        
-    <form method="POST" action="{{ url_for('teacher_bp.teacher_account', tno=tno) }}">
-        <!-- 修改密码部分 -->
-        <div>
-            <h5>修改密码：</h5>
-            <div>
-                <label >原密码：</label>
-                <input type="password" name="secret" placeholder="请输入原密码">   
+        <!-- 修改个人信息卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-lg p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-center">修改个人信息</h5>
+                    <form method="POST" action="{{ url_for('teacher_bp.teacher_account', tno=tno) }}">
+                        <div class="mb-3">
+                            <label class="form-label">姓名：</label>
+                            <input type="text" class="form-control" name="name" value="{{ name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">性别：</label>
+                            <select class="form-select" name="gender" required>
+                                <option value="男" {% if gender == '男' %}selected{% endif %}>男</option>
+                                <option value="女" {% if gender == '女' %}selected{% endif %}>女</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">学院：</label>
+                            <input type="text" class="form-control" name="college" value="{{ college }}" required>
+                        </div>
+                        <button type="submit" name="action" value="update_info" class="btn btn-primary w-100">提交修改</button>
+                    </form>
+                </div>
             </div>
-       
-            <div>
-                <label >新密码：</label>
-                <input type="password" name="password" placeholder="请输入新密码">   
-            </div>
-     
-            <button type="submit" name="action" value="update_password">修改密码</button>       
         </div>
-    </form>
-     
-        
+
+        <!-- 修改密码卡片 -->
+        <div class="col-md-4">
+            <div class="card shadow-lg p-3">
+                <div class="card-body">
+                    <h5 class="card-title text-center">修改密码</h5>
+                    <form method="POST" action="{{ url_for('teacher_bp.teacher_account', tno=tno) }}">
+                        <div class="mb-3">
+                            <label class="form-label">原密码：</label>
+                            <input type="password" class="form-control" name="secret" placeholder="请输入原密码">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">新密码：</label>
+                            <input type="password" class="form-control" name="password" placeholder="请输入新密码">
+                        </div>
+                        <button type="submit" name="action" value="update_password" class="btn btn-danger w-100">修改密码</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
+</div>
 {% endblock %}

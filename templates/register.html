@@ -1,10 +1,26 @@
 {% extends 'base.html' %}
 {% from 'bootstrap/form.html' import render_form %}
 {% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_messages %}
+
+{% block head %}
+    {{ render_nav_item('login_bp.index', 'Home') }}
+{% endblock %}
 
 {% block content %}
-    <h1>Register</h1>
-    {{ render_form(form) }}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body">
+            <h2 class="text-center mb-4">注册</h2>
+        
+            <!-- 注册表单 -->
+            {{ render_form(form, button_map={'submit': 'primary btn-block'}) }}
 
-    <p>已有账号？<a href="{{ url_for('login_bp.index') }}">返回登录</a></p>
+            <!-- 登录提示 -->
+            <p class="text-center mt-3">
+                已有账号？<a href="{{ url_for('login_bp.index') }}" class="text-primary">点击登录</a>
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}
